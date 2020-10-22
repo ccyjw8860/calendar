@@ -1,13 +1,48 @@
 import React from 'react';
 
-const Calendar = (year, date) =>{
-    const CalendarArray = [
-        [1,2,3,4,5,6,7],
-        [8,9,10,11,12,13,14],
-        [15,16,17,18,19,20,21],
-        [22,23,24,25,26,27,28],
-        [29,30]
+const Calendar = ({year, month}) =>{
+    const date = 1,
+    dayIndex = new Date(year, month, date).getDay(),
+    lastDay = new Date(year,month+1,0).getDate(),
+    weeksArray = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+    const weeksDisplay = weeksArray.map(week=>{
+        return(
+        <div className='weekName'>{week}</div>
+        )
+    })
+
+    let CalendarArray = [
+        [0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0]
     ]
+
+    const makeCalendarArray = () =>{
+        let basket = CalendarArray[0],
+        j = 1;
+        for(let i=dayIndex;i<7;i++){
+            basket[i] = j;
+            j++
+        }
+        CalendarArray[0] = basket;
+        for(let i=1;i<5;i++){
+            let basket = CalendarArray[i]
+            for(let k=0; k<7; k++){
+                if(j!==lastDay+1){
+                    basket[k] = j
+                    j++
+                }else{
+                    basket[k] = 0
+                }
+            }
+            CalendarArray[i] = basket
+        }
+    }
+
+    makeCalendarArray();
 
     const selectDay = (e) =>{
         if(e.target.classList.contains('first')){
@@ -27,25 +62,28 @@ const Calendar = (year, date) =>{
         }
     }
 
-    const result = CalendarArray.map(week => {
+    const calendarDisplay = CalendarArray.map(week => {
         let basket = week.map((day, index)=> {
+            let id = `day_${day}`
             if(index===0){
                 return(
-                    <div className='day first notselected' onClick={selectDay}>{day}</div>        
+                    <div className='day first notselected' id={id} onClick={selectDay}>{day===0?'':day}</div>        
                 )
             }else{
                 return(
-                    <div className='day' onClick={selectDay}>{day}</div>
+                    <div className='day' id={id} onClick={selectDay}>{day===0?'':day}</div>
                     )
+                }
             }
-        })
+        )
         return(
         <div className='week'>{basket}</div>
         )
     })
     return(
         <div>
-            {result}
+            <div className='weekName_container'>{weeksDisplay}</div>
+            {calendarDisplay}
         </div>
     );
 }

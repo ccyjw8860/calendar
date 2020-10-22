@@ -1,5 +1,5 @@
 import React from 'react';
-
+import Calendar from './Calendar'
 
 function range(start, stop, step) {
     if (typeof stop == 'undefined') {
@@ -22,45 +22,53 @@ function range(start, stop, step) {
     }
   
     return result;
-  };
+};
 
+const years = range(2020,2051,1),
+months = range(0,12,1),
+today = new Date(),
+init_year = today.getFullYear()
+let init_month = today.getMonth()
 
-const SelectBox = () => {
-
-    const years = range(2020, 2051, 1);
-    const months = range(1, 13, 1);
-
-    const returnValue = (e) =>{
-        console.log(e.target.value);
+class SelectBox extends React.Component{  
+    state = {
+        year: init_year,
+        month:init_month,
     }
 
-    const makeYearBox = () => {
-          const basket = years.map(year => {
-              return(
-              <option value={year}>{year}</option>
-              )
-          })
-      return (<select className = 'yearBox' onChange={returnValue}>{basket}</select>)
-      }
-    
-    const makeMonthBox = () => {
-          const basket = months.map(month => {
-              return(
-              <option value={month}>{month}</option>
-              )
-          })
-      return(<select className='monthBox' onChange={returnValue}>{basket}</select>)
-      }
-    
-    const yearBox = makeYearBox();
-    const monthBox = makeMonthBox();
+    returnYear = (e) =>{
+        this.setState({year:Number(e.target.value)});
+    }
 
-    return(
-        <div className='box_container'>
-            {yearBox}
-            {monthBox}
+    returnMonth = (e) =>{
+        this.setState({month:Number(e.target.value)})
+    }
+
+    render(){
+        const yearBasket = years.map(year => {
+            return(
+            <option value={year}>{year}</option>
+            )
+        })
+        const monthBasket = months.map(month => {
+            return(
+                <option value={month} selected={month === this.state.month}>{month+1}</option>
+                )
+        })
+        return(
+        <div className='calendar'>
+            <div className='box_container'>
+            <select className = 'yearBox' onChange={this.returnYear}>{yearBasket}</select>
+            <span className='text_unit'>년</span>
+            <select className = 'monthBox' onChange={this.returnMonth}>{monthBasket}</select>
+            <span className='text_unit'>월</span>
+            </div>
+            <div className='calendar_container'>
+                <Calendar year={this.state.year} month={this.state.month}/>
+            </div>
         </div>
-    )
+        )
+    }
 }
 
 export default SelectBox;

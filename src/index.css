@@ -9,21 +9,43 @@
   display: flex;
 }
 
-.day {
+.day,
+.weekName {
   width: 100px;
-  height: 100px;
-  display: flex;
-  justify-content: center;
   border: 1px solid black;
   border-top: none;
   border-left: none;
+}
+
+.weekName {
+  text-align: center;
+}
+
+.weekName_container {
+  width: 707px;
+  display: flex;
+  justify-content: center;
+}
+
+.day {
+  display: flex;
+  justify-content: center;
+  height: 100px;
+  font-size: 20px;
+}
+
+.weekName {
+  height: 30px;
+  border-top: 1px solid black;
+  line-height: 30px;
 }
 
 .day:hover {
   cursor: pointer;
 }
 
-.day:first-child {
+.day:first-child,
+.weekName:first-child {
   border-left: 1px solid black;
 }
 
@@ -36,8 +58,10 @@
   border-top: 1px solid black;
 }
 
-.notselected {
+.notselected,
+.weekName:first-child {
   background-color: #f3d6e9;
+  color: #fb6d53;
 }
 
 .firstselected {
@@ -53,4 +77,42 @@
   height: 100%;
   display: flex;
   justify-content: center;
+}
+
+.blanked {
+  background-color: none;
+  border: none;
+}
+
+.box_container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.calendar_container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+select {
+  font-size: 50px;
+  border: none;
+}
+select:focus {
+  outline: none;
+}
+
+.text_unit {
+  font-size: 40px;
+}
+
+.yearBox {
+  margin: 10px 5px 10px 0px;
+}
+
+.monthBox {
+  margin: 10px 10px 10px 10px;
 }
