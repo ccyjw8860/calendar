@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import Calendar from './Calendar'
 
 function range(start, stop, step) {
@@ -7,68 +7,76 @@ function range(start, stop, step) {
         stop = start;
         start = 0;
     }
-  
+
     if (typeof step == 'undefined') {
         step = 1;
     }
-  
+
     if ((step > 0 && start >= stop) || (step < 0 && start <= stop)) {
         return [];
     }
-  
+
     var result = [];
     for (var i = start; step > 0 ? i < stop : i > stop; i += step) {
         result.push(i);
     }
-  
+
     return result;
 };
 
-const years = range(2020,2051,1),
-months = range(0,12,1),
-today = new Date(),
-init_year = today.getFullYear()
-let init_month = today.getMonth()
 
-class SelectBox extends React.Component{  
-    state = {
-        year: init_year,
-        month:init_month,
+const SelectBox = () =>{
+    const today = new Date();
+    const [year, setYear] = useState(today.getFullYear());
+    const [month, setMonth] = useState(today.getMonth());
+    const [weekIndex, setWeekIndex] = useState(0);
+    const [currentLastDay, setCurrentLastDay] = useState(0);
+    const [previousLastDay, setPreviousLastDay] = useState(0);
+    const yearList = range(2020,2051, 1);
+    const monthList = range(0, 12, 1);
+
+    const returnYear = (e) =>{
+        const value = e.target.value;
+        setYear(value);
     }
 
-    returnYear = (e) =>{
-        this.setState({year:Number(e.target.value)});
+    const returnMonth = (e) =>{
+        const value = e.target.value;
+        setMonth(value);
     }
 
-    returnMonth = (e) =>{
-        this.setState({month:Number(e.target.value)})
+    const updateProps = () =>{
+        const thisWeekIndex = new Date(year, month, 1).getDay();
+        const thisCurrentLastDay = new Date(year, month+1, 0).getDate();
+        const thisPreviousLastDay = new Date(year, month, 0).getDay();
+        setWeekIndex(thisWeekIndex);
+        setCurrentLastDay(thisCurrentLastDay);
+        setPreviousLastDay(thisPreviousLastDay);
     }
 
-    render(){
-        const yearBasket = years.map(year => {
-            return(
-            <option value={year}>{year}</option>
-            )
-        })
-        const monthBasket = months.map(month => {
-            return(
-                <option value={month} selected={month === this.state.month}>{month+1}</option>
-                )
-        })
-        return(
-        <div className='calendar'>
-            <div className='box_container'>
-            <select className = 'yearBox' onChange={this.returnYear}>{yearBasket}</select>
-            <span className='text_unit'>년</span>
-            <select className = 'monthBox' onChange={this.returnMonth}>{monthBasket}</select>
-            <span className='text_unit'>월</span>
+    useEffect(updateProps, [year, month]);
+
+    const yearBox = yearList.map(year=>{
+    return(<option value={year}>{year}</option>)
+    })
+
+    const monthBox = monthList.map(element => {
+    return(<option value={element} selected={month===element}>{element+1}</option>)
+    })
+
+    return(
+        <div className = 'calendar'>
+            <div className='selectbox_container'>
+                <select className='yearbox' onChange = {returnYear}>
+                    {yearBox}
+                </select>
+                <select className='monthBox' onChange = {returnMonth}>
+                    {monthBox}
+                </select>
             </div>
-            <div className='calendar_container'>
-                <Calendar year={this.state.year} month={this.state.month}/>
-            </div>
+            <Calendar year={year} month={month} weekindex = {weekIndex} currentlastday = {currentLastDay} previouslastday = {previousLastDay}/>
         </div>
-        )
-    }
+    )
 }
 
 export default SelectBox;

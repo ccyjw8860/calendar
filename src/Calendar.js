@@ -1,91 +1,59 @@
-import React from 'react';
+import React, {useState} from 'react';
 
-const Calendar = ({year, month}) =>{
-    const date = 1,
-    dayIndex = new Date(year, month, date).getDay(),
-    lastDay = new Date(year,month+1,0).getDate(),
-    weeksArray = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
-    const weeksDisplay = weeksArray.map(week=>{
-        return(
-        <div className='weekName'>{week}</div>
-        )
-    })
+const updateMonthIndexArray = (year, month, weekIndex) => {
+    let monthIndexArray = [[1,1,1,1,1,1,1],
+                           [1,1,1,1,1,1,1],
+                           [1,1,1,1,1,1,1],
+                           [1,1,1,1,1,1,1],
+                           [1,1,1,1,1,1,1]]
 
-    let CalendarArray = [
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0]
-    ]
-
-    const makeCalendarArray = () =>{
-        let basket = CalendarArray[0],
-        j = 1;
-        for(let i=dayIndex;i<7;i++){
-            basket[i] = j;
-            j++
-        }
-        CalendarArray[0] = basket;
-        for(let i=1;i<5;i++){
-            let basket = CalendarArray[i]
-            for(let k=0; k<7; k++){
-                if(j!==lastDay+1){
-                    basket[k] = j
-                    j++
-                }else{
-                    basket[k] = 0
-                }
-            }
-            CalendarArray[i] = basket
+    const nextFirstDayIndex = new Date(year, month+1, 1).getDay();
+    if(weekIndex !== 0){
+        for(let day=0; day<weekIndex; day++){
+            monthIndexArray[0][day] = 0;
         }
     }
 
-    makeCalendarArray();
-
-    const selectDay = (e) =>{
-        if(e.target.classList.contains('first')){
-            if(e.target.classList.contains('notselected')){
-                e.target.classList.remove('notselected');
-                e.target.classList.add('firstselected');
-            }else{
-                e.target.classList.remove('firstselected');
-                e.target.classList.add('notselected');
-            }
-        }else{
-            if(e.target.classList.contains('selected')){
-                e.target.classList.remove('selected');
-            }else{
-                e.target.classList.add('selected');
-            }
-        }
+    if(nextFirstDayIndex !== 0){
+        for(let day=nextFirstDayIndex; day<7; day++){
+            monthIndexArray[monthIndexArray.length-1][day] = 2;
+        } 
     }
 
-    const calendarDisplay = CalendarArray.map(week => {
-        let basket = week.map((day, index)=> {
-            let id = `day_${day}`
-            if(index===0){
-                return(
-                    <div className='day first notselected' id={id} onClick={selectDay}>{day===0?'':day}</div>        
-                )
-            }else{
-                return(
-                    <div className='day' id={id} onClick={selectDay}>{day===0?'':day}</div>
-                    )
-                }
-            }
-        )
-        return(
-        <div className='week'>{basket}</div>
-        )
-    })
-    return(
+    return monthIndexArray;
+}
+
+const updateCalendar = (monthIndexArray, currentLastDay, previousLastDay, weekindex) =>{
+    let sDay = 1;
+    let pFirstDay = previousLastDay - weekindex + 1;
+    let nDay = 1;
+    let calendarArray = [[0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0]];
+    
+    for(let week=0; week<5; week++){
+        for(let day=0; day<7; day++){
+            if(monthIndexArray[week][day]===0){
+                calendarArray[week][day] = pFirstDay;
+                pFirstDay++
+            }else if()
+        }
+    }
+}
+
+
+const Calendar = ({year, month, weekindex, currentlastday, previouslastday}) =>{
+    const monthIndex = updateMonthIndexArray(year, month, weekindex)
+    console.log(monthIndex);
+
+    return (
         <div>
-            <div className='weekName_container'>{weeksDisplay}</div>
-            {calendarDisplay}
+            <button></button>
         </div>
-    );
+    )
 }
 
 export default Calendar;
