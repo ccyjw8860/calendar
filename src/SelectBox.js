@@ -30,27 +30,24 @@ const SelectBox = () =>{
     const [year, setYear] = useState(today.getFullYear());
     const [month, setMonth] = useState(today.getMonth());
     const [weekIndex, setWeekIndex] = useState(0);
-    const [currentLastDay, setCurrentLastDay] = useState(0);
     const [previousLastDay, setPreviousLastDay] = useState(0);
     const yearList = range(2020,2051, 1);
     const monthList = range(0, 12, 1);
 
     const returnYear = (e) =>{
         const value = e.target.value;
-        setYear(value);
+        setYear(Number(value));
     }
 
     const returnMonth = (e) =>{
         const value = e.target.value;
-        setMonth(value);
+        setMonth(Number(value));
     }
 
     const updateProps = () =>{
         const thisWeekIndex = new Date(year, month, 1).getDay();
-        const thisCurrentLastDay = new Date(year, month+1, 0).getDate();
-        const thisPreviousLastDay = new Date(year, month, 0).getDay();
+        const thisPreviousLastDay = new Date(year, month, 0).getDate();
         setWeekIndex(thisWeekIndex);
-        setCurrentLastDay(thisCurrentLastDay);
         setPreviousLastDay(thisPreviousLastDay);
     }
 
@@ -67,14 +64,14 @@ const SelectBox = () =>{
     return(
         <div className = 'calendar'>
             <div className='selectbox_container'>
-                <select className='yearbox' onChange = {returnYear}>
+                <select className='yearBox' onChange = {returnYear}>
                     {yearBox}
                 </select>
                 <select className='monthBox' onChange = {returnMonth}>
                     {monthBox}
                 </select>
             </div>
-            <Calendar year={year} month={month} weekindex = {weekIndex} currentlastday = {currentLastDay} previouslastday = {previousLastDay}/>
+            <Calendar year={year} month={month} weekindex = {weekIndex} previouslastday = {previousLastDay}/>
         </div>
     )
 }
