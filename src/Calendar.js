@@ -1,26 +1,14 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 
 Array.prototype.shuffle = function () {
     var length = this.length;
-    
-    // 아래에서 length 후위 감소 연산자를 사용하면서 결국 0이된다.
-    // 프로그래밍에서 0은 false를 의미하기에 0이되면 종료.
     while (length) {
  
-        // 랜덤한 배열 index 추출
         var index = Math.floor((length--) * Math.random());
- 
-        // 배열의 끝에서부터 0번째 아이템을 순차적으로 대입
         var temp = this[length];
- 
-        // 랜덤한 위치의 값을 맨뒤(this[length])부터 셋팅
         this[length] = this[index];
- 
-        // 랜덤한 위치에 위에 설정한 temp값 셋팅
         this[index] = temp;
     }
- 
-    // 배열을 리턴해준다.
     return this;
 };
 
@@ -76,11 +64,29 @@ const updateCalendar = (monthIndexArray,previousLastDay, weekindex) =>{
     return calendarArray
 }
 
+
+const popupWindow = () =>{
+    const ul = document.createElement('ul');
+    const li_1 = document.createElement('li');
+    const li_2 = document.createElement('li');
+    ul.className = 'popupWindow';
+    li_1.innerText = '일정 묶기';
+    li_2.innerText = '계획 일괄 추가'
+    li_1.id = 'clustering_btn'
+    ul.appendChild(li_1);
+    ul.appendChild(li_2);
+    return ul
+}
+
+
 const Calendar = ({year, month, weekindex, previouslastday}) =>{
     const monthIndex = updateMonthIndexArray(year, month, weekindex);
     const calendar = updateCalendar(monthIndex, previouslastday, weekindex)
     const [selected, setSelected] = useState([]);
-    const [cluster, setCluster] = useState([])
+    const [cluster, setCluster] = useState([]);
+    const colorClasses = ['bg_1', 'bg_2', 'bg_3', 'bg_4']
+    const borderClasses = ['border_1', 'border_2', 'border_3', 'border_4']
+    const [colorIdx, setColorIdx] = useState(0);
 
     const fade_in = (e) =>{
         const element = e.target;
@@ -92,9 +98,42 @@ const Calendar = ({year, month, weekindex, previouslastday}) =>{
         element.classList.remove('fade_in');
     }
 
+    const dayClustering = (e) =>{
+        const root = document.getElementById('root');
+        const ul = document.querySelector('.popupWindow');
+        setCluster([...cluster, selected]);
+
+        selected.map((s, idx)=>{
+            let target = document.getElementById(s);
+            target.classList.add(colorClasses[colorIdx]);
+            if(idx !== 0){
+                target.classList.add(borderClasses[colorIdx]);
+                let checkId = `_${s.split('_')[1]}_${Number(s.split('_')[2])-1}`
+                if(checkId !== selected[idx-1]){
+                    target.classList.add('border_black');
+                }
+            }
+            if(s.split('_')[2]==="0"){
+                target.classList.add('border_black');
+            }
+        })
+        setSelected([]);
+        if(colorIdx !==3){
+            setColorIdx(colorIdx + 1);
+        }else{
+            setColorIdx(0);
+        }
+        root.removeChild(ul);
+    }
+
     const leftClick = (e) =>{
-        console.log('왼쪽클릭');
+        console.log('왼쪽 클릭')
         const classes = e.target.classList.value;
+        const root = document.querySelector('#root');
+        const ul = document.querySelector('.popupWindow')
+        if(root.lastElementChild === ul){
+            root.removeChild(ul);
+        }
         if(classes.includes('selected')){
             e.target.classList.remove('selected');
             let result = [];
@@ -102,37 +141,52 @@ const Calendar = ({year, month, weekindex, previouslastday}) =>{
             setSelected(result);
         }else{
             e.target.classList.add('selected')
-            setSelected([...selected, e.target.id]);
+            setSelected([...selected, e.target.id].sort());
         }
     }
-
+    
     const rightClick = e =>{
-        console.log('오른쪽클릭');
+        console.log('오른쪽 클릭')
         const element = e.target;
+        const topPosition = `${e.clientY}px`;
+        const leftPosition = `${e.clientX}px`;
         const classes = element.classList.value;
-        const colors = ['#F6C5D6', '#C5D2F6', '#F6F4C5', '#C5F6DB']
-        const color = colors.shuffle()[0]
-        e.preventDefault();
-        if(classes.includes('selected')){
-            if(classes.includes('clustered')){
-                element.classList.remove('clustered');
-                setCluster(cluster.filter(c=>{return(!c.includes(e.target.id))}))
-            }else{
-                setCluster([...cluster, selected]);
-                for(let i=0;i<selected.length;i++){
-                    let basket = document.querySelector(`#${selected[i]}`)
-                    basket.classList.remove('selected');
-                    basket.classList.add('clustered');
-                    basket.style.backgroundColor = color;
-                }
-                setSelected([]);
-            }
+        const root = document.querySelector('#root');
+        const lastElement = root.lastElement;
+        const ul = popupWindow();
+    
+        if(root.lastElementChild === lastElement){
+            root.removeChild(lastElement);
         }
-
+    
+        e.preventDefault();
+        ul.style.top = topPosition;
+        ul.style.left = leftPosition;
+    
+        if(classes.includes('selected')){
+            root.appendChild(ul);
+        }
+        
+        const clusterBtn = document.getElementById('clustering_btn')
+        if(clusterBtn !== null){
+            clusterBtn.addEventListener('click', dayClustering);
+        }
+    }
+    
+    const initStateAndHtml = () =>{
+        setSelected([]);
+        setCluster([]);
+        const days = document.querySelectorAll('.day');
+        for(let i=0;i<days.length;i++){
+            for(let j=0;j<colorClasses.length;j++){
+                days[i].classList.remove(colorClasses[j]);
+                days[i].classList.remove(borderClasses[j]);
+            }
+            days[i].classList.remove('selected');
+        }
     }
 
-    console.log(cluster);
-    console.log(selected);
+    useEffect(initStateAndHtml, [weekindex, year, month]);
 
     return (
         <div className='calendar_container'>
@@ -152,6 +206,7 @@ const Calendar = ({year, month, weekindex, previouslastday}) =>{
             })}
         </div>
     )
+
 }
 
 export default Calendar;
